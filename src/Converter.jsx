@@ -1,29 +1,24 @@
 import React, { useState } from 'react'
-
+import Papa from 'papaparse';
 function Converter({csvText , jsonText , onChangeOutput}) {
-    const [c , setC] = useState("") ;
-   const converter = ()=>{
-    var output="" ;
-    const properties = csvText.split('\n')[0].split(',');
-    // setC(properties[3]) ;
-    const data = csvText.split('\n') ;
-    data.forEach((line , index)=>{
-        var fields = line.split(',') ; 
-        output+='{';
-        properties.forEach((prop , index)=>{
-            output+='"' + prop + '"' + ':' ; 
-            output+=fields[index]  ;
-            output+='\n' ;
-        })
-        output+='}';
-        output+='\n' ;
-
-    })
-    setC(output) ;
-   }
+    const [c , setC] = useState("");
+    const parseCSVString = () => {
+        Papa.parse(csvText, {
+          header: true, 
+          dynamicTyping: true, 
+          complete: (result) => {
+            const jsonString = JSON.stringify(result.data, null, 2); // Convert to string
+        setC(jsonString); // Set the stringified JSON data
+            console.log('Parsed CSV data:', result.data);
+          },
+          error: (error) => {
+            console.error('Error parsing CSV:', error);
+          },
+        });
+      };
     return (
         <>
-    <button onClick={converter}>Convert</button>
+    <button onClick={parseCSVString}>Convert</button>
     {c}
         </>
   )
